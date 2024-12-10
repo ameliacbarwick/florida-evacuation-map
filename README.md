@@ -1,5 +1,7 @@
 # Florida Evacuation Routes and Shelters Map
 
+Link to Website, Opened via Live Server: http://127.0.0.1:5500/index.html 
+
 This project provides an interactive map visualizing evacuation routes, emergency shelters, and areas affected by coastal erosion in Florida. The goal is to help users assess risks and make informed decisions during emergencies, such as hurricanes or flooding.
 
 ## Project Overview
@@ -29,5 +31,5 @@ This map utilizes several datasets to provide comprehensive information:
 1. **Clone the repository**:
    https://github.com/ameliacbarwick/florida-evacuation-map.git
 
-   Map opened with Live Server http://127.0.0.1:5500/index.html 
+  
 
