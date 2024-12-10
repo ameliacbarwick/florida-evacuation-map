@@ -25,10 +25,7 @@ This map utilizes several datasets to provide comprehensive information:
 - **Leaflet**: Open-source JavaScript library for creating interactive maps.
 - **GeoJSON**: A format for encoding geographic data structures to display spatial data on the map.
 
-## Setup Instructions
-
-Follow these steps to set up the project locally:
 
 1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/yourusername/florida-evacuation-map.git
+   https://github.com/ameliacbarwick/florida-evacuation-map.git 
+
