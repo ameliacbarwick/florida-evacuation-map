@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Florida Evacuation Routes and Shelters Map</title>
+
+  <!-- Link to Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  
+  <!-- Custom styles for the map -->
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #mapid {
+      height: 100vh;
+      width: 100%;
+      margin-left: 270px; /* To make space for the sidebar */
+    }
+
+    .sidebar {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: white;
+      padding: 15px;
+      border-radius: 8px;
+      z-index: 9999; /* Ensure it stays on top of the map but below controls */
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+      width: 250px;
+    }
+
+    .sidebar h1 {
+      font-size: 1.8em;
+      color: #333;
+      text-align: center;
+    }
+
+    .sidebar p {
+      font-size: 1em;
+      color: #666;
+      text-align: center;
+    }
+
+    .logo {
+      width: 100%;
+      height: auto;
+      margin-bottom: 20px;
+    }
+
+    .popup-content {
+      font-size: 1.2em;
+    }
+
+    /* Style the legend */
+    .legend {
+      background: white;
+      line-height: 18px;
+      color: #555;
+      padding: 6px 8px;
+      font-size: 14px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      z-index: 1000;
+    }
+
+    .legend i {
+      width: 18px;
+      height: 18px;
+      float: left;
+      margin-right: 8px;
+      border-radius: 50%;
+    }
+
+    /* Style for the article links */
+    .articles {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      background-color: rgba(255, 255, 255, 0.8);
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+    }
+
+    .articles a {
+      display: block;
+      color: #0066cc;
+      text-decoration: none;
+      margin-bottom: 8px;
+      font-size: 1em;
+    }
+
+    .articles a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Map container -->
+  <div id="mapid"></div>
+
+  <!-- Sidebar with Logo, Title, and Description -->
+  <div class="sidebar">
+    <img src="logo.png" alt="Logo" class="logo"> <!-- Logo -->
+    <h1>Florida Evacuation Routes and Shelters</h1>
+    <p>This map shows evacuation routes, emergency shelters, and areas affected by coastal erosion in Florida.</p>
+  </div>
+
+  <!-- Article Links -->
+  <div class="articles">
+    <a href="https://www.floridadisaster.org/planprepare/disaster-preparedness-maps" target="_blank">Read Article 1: Florida Disaster Preparedness Maps</a>
+    <a href="https://www.weather.gov/safety/flood-states-fl" target="_blank">Read Article 2: Flood Safety in Florida</a>
+  </div>
+
+  <!-- Include Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  
+  <!-- Include GeoJSON layers for data -->
+  <script src="https://unpkg.com/leaflet-ajax@2.0.0/leaflet.ajax.min.js"></script>
+
+  <script>
+    // Initialize the map
+    const map = L.map('mapid').setView([27.994402, -81.760254], 6); // Florida Coordinates
+
+    // Add a basemap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(map);
+
+    // Function to dynamically handle popups
+    function onEachFeature(feature, layer) {
+      if (feature.properties) {
+        let popupContent = "<strong>Details:</strong><br>";
+        for (const key in feature.properties) {
+          popupContent += `<strong>${key}</strong>: ${feature.properties[key]}<br>`;
+        }
+        layer.bindPopup(popupContent);
+      } else {
+        layer.bindPopup("No data available for this feature.");
+      }
+    }
+
+    // Create separate layers for each dataset
+    const evacuationRoutesLayer = L.layerGroup();
+    const riskSheltersLayer = L.layerGroup();
+    const coastalErosionLayer = L.layerGroup();
+
+    // Load Evacuation Routes GeoJSON
+    fetch("assets/evacuation_routes.geojson")
+      .then(response => response.json())
+      .then(data => {
+        L.geoJSON(data, {
+          onEachFeature: onEachFeature,
+          style: { color: "#FFA07A", weight: 2, opacity: 0.7 } // Lighter color for Evacuation Routes
+        }).addTo(evacuationRoutesLayer);
+      })
+      .catch(err => console.error('Error loading Evacuation Routes:', err));
+
+    // Load Risk Shelters GeoJSON
+    fetch("assets/risk_shelters.geojson")
+      .then(response => response.json())
+      .then(data => {
+        L.geoJSON(data, {
+          onEachFeature: onEachFeature,
+          pointToLayer: (feature, latlng) => L.circleMarker(latlng, { 
+            radius: 8, 
+            fillColor: "#3388FF", 
+            color: "#0066FF", 
+            weight: 1, 
+            fillOpacity: 0.7 
+          })
+        }).addTo(riskSheltersLayer);
+      })
+      .catch(err => console.error('Error loading Risk Shelters:', err));
+
+    // Load Coastal Erosion GeoJSON
+    fetch("assets/coastal_erosion.geojson")
+      .then(response => response.json())
+      .then(data => {
+        L.geoJSON(data, {
+          onEachFeature: onEachFeature,
+          style: { color: "red", weight: 4, opacity: 1 } // Red and bold for Coastal Erosion
+        }).addTo(coastalErosionLayer);
+      })
+      .catch(err => console.error('Error loading Coastal Erosion:', err));
+
+    // Create the legend
+    const legend = L.control({ position: "bottomleft" });
+
+    legend.onAdd = function () {
+      const div = L.DomUtil.create('div', 'legend');
+      div.innerHTML += '<strong>Legend</strong><br>';
+      div.innerHTML += '<i style="background:#FFA07A; width:18px; height: 18px; border-radius: 0;"></i> Evacuation Routes<br>';
+      div.innerHTML += '<i style="background:#3388FF"></i> Risk Shelters<br>';
+      div.innerHTML += '<i style="background:red; width:18px; height:18px; border-radius: 0;"></i> Coastal Erosion<br>';
+      return div;
+    };
+
+    legend.addTo(map);
+
+    // Add Layer Control
+    const baseMaps = {
+      "Evacuation Routes": evacuationRoutesLayer,
+      "Risk Shelters": riskSheltersLayer,
+      "Coastal Erosion": coastalErosionLayer
+    };
+
+    L.control.layers(null, baseMaps).addTo(map);
+
+    // Add layers to the map initially
+    evacuationRoutesLayer.addTo(map);
+    riskSheltersLayer.addTo(map);
+    coastalErosionLayer.addTo(map);
+  </script>
+</body>
+</html>
