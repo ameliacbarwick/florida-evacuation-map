@@ -27,5 +27,7 @@ This map utilizes several datasets to provide comprehensive information:
 
 
 1. **Clone the repository**:
-   https://github.com/ameliacbarwick/florida-evacuation-map.git 
+   https://github.com/ameliacbarwick/florida-evacuation-map.git
+
+   Map opened with Live Server http://127.0.0.1:5500/index.html 
 
